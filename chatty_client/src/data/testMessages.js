@@ -1,8 +1,5 @@
-import React, {Component} from 'react';
-import MessageList from "./MessageList.jsx";
-import ChatBar from "./ChatBar.jsx";
-
-const messages = [
+export default
+[
   {
     "type": "incomingMessage",
     "content": "I won't be impressed with technology until I can download food.",
@@ -37,15 +34,3 @@ const messages = [
     "content": "Anonymous2 changed their name to NotFunny",
   }
 ]
-
-class App extends Component {
-  render() {
-    return (
-      <div>
-        <MessageList messages = {messages}/>
-        <ChatBar />
-      </div>
-    );
-  }
-}
-export default App;

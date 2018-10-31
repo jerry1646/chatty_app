@@ -1,9 +1,12 @@
 {
+  "parser": "babel-eslint",
+
   "parserOptions": {
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
-    }
+    },
+    "ecmaVersion": 7
   },
   "env": {
     "browser": true,
