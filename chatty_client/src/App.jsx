@@ -8,13 +8,14 @@ class App extends Component {
 
 
     this.state = {
-      // color: "",
       numUsers: null,
       currentUser: {name: "anonymous"},
       messageInput: "",
       usernameInput: "anonymous",
       messages: []
     }
+
+    // Transaction methods
 
     this.tx = {
       updateMessageInput:(newMsg) => {
@@ -37,6 +38,7 @@ class App extends Component {
         // console.log(newUser)
         const newMessage = {
           type: "postNotification",
+          username: newUser.name,
           content: this.state.currentUser.name + " has changed their name to " + newUser.name
         }
         this.setState({
@@ -57,19 +59,16 @@ class App extends Component {
   }
 
 
-
-
   componentDidMount() {
     this.ws = new WebSocket("ws:localhost:3001");
     this.ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
-      if(msg.type == "newConnection"){
+      if(msg.type == "newConnection" || msg.type == "disConnection"){
         this.setState({
           numUsers: msg.numUsers,
         })
-      } else {
-        this.tx.updateMessageList(msg)
       }
+      this.tx.updateMessageList(msg)
     }
   }
 

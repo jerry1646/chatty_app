@@ -44,8 +44,10 @@ body {
 }
 
 .message.system {
+  display: block;
   font-style: italic;
   padding: 5px 20px;
+  text-align: center;
 }
 
 .message-content,

@@ -1,14 +1,12 @@
 const express = require('express');
 const WebSocket = require('ws')
 const uuidv4 = require('uuid/v4')
-// const URI = require('urijs')
 
 // Set the port to 3001
 const PORT = 3001;
 
 // Create a new express server
 const server = express()
-   // Make the express server serve static assets (html, javascript, css) from the /public folder
   .use(express.static('public'))
   .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${ PORT }`));
 
@@ -16,22 +14,33 @@ const server = express()
 const SocketServer = WebSocket.Server;
 const wss = new SocketServer({ server });
 
-// Set up a callback that will run when a client connects to the server
-// When a client connects they are assigned a socket, represented by
-// the ws parameter in the callback.
-
+// Username colors can be any one of the following four
 const colors = ["#7610c9", "#4be78b", "#fe9920", "#d40000"]
-const connectedUsers = {};
 let lastColor = "";
 
+// Object to keep track of active connections
+const connectedUsers = {};
+
+
+// Utility functions
 function escapeTag(string){
   return string.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
+
 
 function parseURI(string){
   let urlReg = /(https?:\/\/.*?\.(?:png|jpg|gif))/gi
   let result = string.replace(urlReg, "<br><img src= '$1' style='max-width: 60%;'/>");
   return result
+}
+
+function randomColor(){
+  let newColor = lastColor;
+  while (newColor == lastColor){
+    newColor = colors[Math.floor(Math.random()*4)];
+  }
+  lastColor = newColor;
+  return newColor;
 }
 
 wss.broadcast = (message) => {
@@ -42,56 +51,68 @@ wss.broadcast = (message) => {
   })
 }
 
-wss.on('connection', (ws) => {
 
-  //Prevent same color for neibour users
-  let newColor = lastColor;
-  while (newColor == lastColor){
-    newColor = colors[Math.floor(Math.random()*4)];
-  }
-  const userColor = newColor;
-  lastColor = newColor;
+// Socket management functions
 
-  //Register user connection
-  console.log('Client connected');
+function registerUser(ws){
   ws.uuid = uuidv4();
+  ws.username = 'anonymous';
+  ws.userColor = randomColor();
   connectedUsers[ws.uuid] = ws;
+
   let connectionMessage = {
     type: "newConnection",
+    id: uuidv4(),
     numUsers: Object.keys(connectedUsers).length,
   }
+  wss.broadcast(connectionMessage);
+}
+
+function messageHandler(msg){
+  const newMessage = JSON.parse(msg)
+  newMessage.id = uuidv4();
+
+  switch (newMessage.type){
+    case "postMessage":
+      newMessage.type = "incomingMessage";
+      newMessage.color= this.userColor
+      newMessage.content = parseURI(escapeTag(newMessage.content))
+      wss.broadcast(newMessage);
+      break;
+    case "postNotification":
+      this.username = newMessage.username;
+      newMessage.type = "incomingNotification";
+      newMessage.color= this.userColor
+      wss.broadcast(newMessage);
+      break;
+    default:
+      console.error("Unknown event type " + data.type)
+  }
+}
+
+function disconnectHandler(){
+  delete connectedUsers[this.uuid];
+  connectionMessage = {
+    type: "disConnection",
+    id: uuidv4(),
+    numUsers: Object.keys(connectedUsers).length,
+    content: this.username + " has disconnected"
+  }
   wss.broadcast(connectionMessage)
+}
+
+
+// Web socket manager
+
+wss.on('connection', (ws) => {
+
+  //Register user connection
+  registerUser(ws);
 
   //Process incoming message/notification
-  ws.on('message', (msg) => {
-    const newMessage = JSON.parse(msg)
-    newMessage.id = uuidv4();
-    switch (newMessage.type){
-      case "postMessage":
-        newMessage.type = "incomingMessage";
-        newMessage.color= userColor
-        newMessage.content = parseURI(escapeTag(newMessage.content))
-        wss.broadcast(newMessage);
-        break;
-      case "postNotification":
-        newMessage.type = "incomingNotification";
-        newMessage.color= userColor
-        wss.broadcast(newMessage);
-        break;
-      default:
-        console.error("Unknown event type " + data.type)
-    }
-  })
+  ws.on('message', messageHandler)
 
 
   //Remove dead socket from registration
-  ws.on('close', () => {
-    delete connectedUsers[ws.uuid];
-    connectionMessage = {
-      type: "newConnection",
-      numUsers: Object.keys(connectedUsers).length
-    }
-    wss.broadcast(connectionMessage)
-
-  });
+  ws.on('close', disconnectHandler);
 });
