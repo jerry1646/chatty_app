@@ -1,7 +1,7 @@
 const express = require('express');
 const WebSocket = require('ws')
 const uuidv4 = require('uuid/v4')
-const URI = require('urijs')
+// const URI = require('urijs')
 
 // Set the port to 3001
 const PORT = 3001;
@@ -24,16 +24,14 @@ const colors = ["#7610c9", "#4be78b", "#fe9920", "#d40000"]
 const connectedUsers = {};
 let lastColor = "";
 
+function escapeTag(string){
+  return string.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
 function parseURI(string){
-  const imgEx = ['jpg', 'jpeg', 'png', 'gif']
-  let result = URI.withinString(string, (url) => {
-    if (imgEx.includes(url.slice(url.length-3).toLowerCase())){
-      return "<br><img src= '" + url + "' style='max-width: 60%;'/>"
-    } else{
-      return "<br><a href='" + url + "'>" + url + "</a>"
-    }
-  })
-  return result;
+  let urlReg = /(https?:\/\/.*?\.(?:png|jpg|gif))/gi
+  let result = string.replace(urlReg, "<br><img src= '$1' style='max-width: 60%;'/>");
+  return result
 }
 
 wss.broadcast = (message) => {
@@ -72,7 +70,7 @@ wss.on('connection', (ws) => {
       case "postMessage":
         newMessage.type = "incomingMessage";
         newMessage.color= userColor
-        newMessage.content = parseURI(newMessage.content)
+        newMessage.content = parseURI(escapeTag(newMessage.content))
         wss.broadcast(newMessage);
         break;
       case "postNotification":
