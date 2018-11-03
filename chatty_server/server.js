@@ -15,7 +15,7 @@ const SocketServer = WebSocket.Server;
 const wss = new SocketServer({ server });
 
 // Username colors can be any one of the following four
-const colors = ["#7610c9", "#4be78b", "#fe9920", "#d40000"]
+const colors = ["#7610c9", "#5F0F40", "#f78600", "#02111B", "#ef3e66" , "#1A936F"]
 let lastColor = "";
 
 // Object to keep track of active connections
@@ -30,14 +30,14 @@ function escapeTag(string){
 
 function parseURI(string){
   let urlReg = /(https?:\/\/.*?\.(?:png|jpg|gif))/gi
-  let result = string.replace(urlReg, "<br><img src= '$1' style='max-width: 60%;'/>");
+  let result = string.replace(urlReg, "<br><img src= '$1' style='max-width: 100%; max-height: 100%;'/>");
   return result
 }
 
 function randomColor(){
   let newColor = lastColor;
   while (newColor == lastColor){
-    newColor = colors[Math.floor(Math.random()*4)];
+    newColor = colors[Math.floor(Math.random()*6)];
   }
   lastColor = newColor;
   return newColor;
@@ -64,6 +64,7 @@ function registerUser(ws){
     type: "newConnection",
     id: uuidv4(),
     numUsers: Object.keys(connectedUsers).length,
+    content: "A new user joins the chat"
   }
   wss.broadcast(connectionMessage);
 }

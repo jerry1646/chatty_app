@@ -48,14 +48,18 @@ class App extends Component {
 
       },
       sendNewMessage: ()=> {
-        const newMessage = {
-          type: "postMessage",
-          username: this.state.currentUser.name,
-          content: this.state.messageInput,
+        if (this.state.messageInput){
+          const newMessage = {
+            type: "postMessage",
+            username: this.state.currentUser.name,
+            content: this.state.messageInput,
+          }
+          this.ws.send(JSON.stringify(newMessage))
         }
-        this.ws.send(JSON.stringify(newMessage))
       }
     }
+
+
   }
 
 
@@ -69,10 +73,9 @@ class App extends Component {
         })
       }
       this.tx.updateMessageList(msg)
+      this.scrollToBottom()
     }
   }
-
-
 
   render() {
     return (
@@ -83,11 +86,17 @@ class App extends Component {
       </nav>
       <div>
         <MessageList messages = {this.state.messages} tx = {this.tx}/>
+        <div ref={(el) => this.endOfMsg = el}> </div>
         <ChatBar currentUser = {this.state.currentUser} messageInput = {this.state.messageInput} tx = {this.tx}/>
       </div>
       </div>
     );
   }
+
+  scrollToBottom = () => {
+    this.endOfMsg.scrollIntoView({ behavior: "smooth" });
+  }
+
 }
 
 export default App;

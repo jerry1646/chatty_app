@@ -1,16 +1,24 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css");
+@import url('https://fonts.googleapis.com/css?family=Spicy+Rice');
 
 body {
-  background: white;
+  background: #d3efff;
   color: black;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   margin: 70px 0;
 }
 
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
 .chatbar {
-  background: tomato;
+  background: #33658A;
   border-top: 1px solid black;
   bottom: 0;
   display: flex;
@@ -23,6 +31,7 @@ body {
 .chatbar-message,
 .chatbar-username {
   border: 1px solid black;
+  border-radius: 10px;
   display: block;
   height: 40px;
   line-height: 40px;
@@ -41,6 +50,7 @@ body {
 .message {
   display: flex;
   padding: 5px;
+  word-wrap: break-word;
 }
 
 .message.system {
@@ -52,7 +62,7 @@ body {
 
 .message-content,
 .message-username {
-  overflow: hidden;
+  overflow: visible;
   margin: 5px;
   padding: 0 10px;
 }
@@ -61,13 +71,33 @@ body {
   flex: 8;
 }
 
-.message-username {
+.message-bubble{
+  display: inline-block;
+  border-radius: 10px;
+  max-width: 100%;
+  padding: 8px 15px;
+  max-width: 60%;
+  color: #fff;
+  font-weight: 700;
+}
+
+.notification-bubble {
+  color: #777;
+  display: inline-block;
+  background-color: #ddd;
+  border-radius: 9px;
+  height: 20px;
+  padding: 0 20px;
+  line-height: 20px;
+}
+
+.message-username {;
   flex: 2;
   font-weight: 700;
 }
 
 .navbar {
-  background: tomato;
+  background: #33658A;
   border-bottom: 1px solid black;
   height: 60px;
   left: 0;
@@ -78,10 +108,11 @@ body {
 }
 
 .navbar-brand {
-  color: inherit;
+  color: #fff;
   display: block;
   float: left;
-  font-weight: 700;
+  font-family: 'Spicy Rice', cursive;
+  font-weight: 400;
   font-size: 28px;
   height: 60px;
   line-height: 60px;
@@ -90,9 +121,9 @@ body {
 }
 
 .num-users{
-  color: inherit;
+  color: #fff;
   display: block;
   float: right;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 60px;
 }
